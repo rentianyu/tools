@@ -5,23 +5,21 @@
 TOKEN=11111111:AAF_xxxxxxxx
 # 用户ID
 chat_ID=111111
+# API 二选一，国外选一，国内选二
+TG_API=api.telegram.org
+#TG_API=api.briefbot.cf
 # 二选一，第一个为有日志输出，第二个无
 # curl='curl'
 curl='curl -s -o /dev/null'
 
-# 官方API
-TG_API=api.telegram.org
-# 备用API
-BK_API=api.briefbot.cf
-# 测试API
-(ping -c 1 $TG_API || TG_API=$BK_API) > /dev/null
+C_API='echo "发送失败，请编辑脚本切换API"'
 
 # 帮助
 if [ "$1" = "-h" ] ; then
     echo "   tg -f     发送文件"
     echo "   tg -p     发送图片"
     echo "   tg -h     使用帮助"
-    echo "   tg 其他   发送文本"
+    echo "   tg 其他    发送文本"
     exit
 fi
 
@@ -29,7 +27,7 @@ fi
 if [ $# -ne 2 ] ; then
     MSG="$*"
     URL="https://$TG_API/bot$TOKEN/sendMessage?chat_id=$chat_ID&parse_mode=Markdown"
-    $curl $URL -d text="$MSG"
+    $curl $URL -d text="$MSG" || $C_API
     exit
 fi
 
@@ -37,7 +35,7 @@ fi
 if [ "$1" = "-f" ] ; then
     FILE="\"$2\""
     URL="https://$TG_API/bot$TOKEN/sendDocument?chat_id=$chat_ID"
-    $curl $URL -F document="@$FILE"
+    $curl $URL -F document="@$FILE" || $C_API
     exit
 fi
 
@@ -45,6 +43,6 @@ fi
 if [ "$1" = "-p" ] ; then
     PHOTO="\"$2\""
     URL="https://$TG_API/bot$TOKEN/sendPhoto?chat_id=$chat_ID"
-    $curl $URL -F photo="@$PHOTO"
+    $curl $URL -F photo="@$PHOTO" || $C_API
     exit
 fi
