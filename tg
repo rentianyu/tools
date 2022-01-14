@@ -1,0 +1,50 @@
+#!/bin/env sh
+# 用途：tg机器人发消息、文件、图片
+# 用法： ./tg 消息 或 sh ./tg 消息 或 bash ./tg 消息
+# 机器人TOKEN
+TOKEN=11111111:AAF_xxxxxxxx
+# 用户ID
+chat_ID=111111
+# 二选一，第一个为有日志输出，第二个无
+# curl='curl'
+curl='curl -s -o /dev/null'
+
+# 官方API
+TG_API=api.telegram.org
+# 备用API
+BK_API=api.briefbot.cf
+# 测试API
+(ping -c 1 $TG_API || TG_API=$BK_API) > /dev/null
+
+# 发送消息 sendMessage
+if [ "$#" != 2 ] ; then
+    MSG="$*"
+    URL="https://$TG_API/bot$TOKEN/sendMessage?chat_id=$chat_ID&parse_mode=Markdown"
+    $curl $URL -d text="$MSG"
+    exit
+fi
+
+# 文件 sendDocument
+if [ "$1" == "-f" ] ; then
+    FILE="\"$2\""
+    URL="https://$TG_API/bot$TOKEN/sendDocument?chat_id=$chat_ID"
+    $curl $URL -F document="@$FILE"
+    exit
+fi
+
+# 照片sendPhoto
+if [ "$1" == "-p" ] ; then
+    PHOTO="\"$2\""
+    URL="https://$TG_API/bot$TOKEN/sendPhoto?chat_id=$chat_ID"
+    $curl $URL -F photo="@$PHOTO"
+    exit
+fi
+
+# 帮助
+if [ "$1" == "-h" ] ; then
+    echo "    -f  发送文件"
+    echo "    -p  发送图片"
+    echo "    -h  使用帮助"
+    echo "  其他  发送文本"
+    exit
+fi
